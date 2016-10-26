@@ -1,0 +1,2 @@
+# softwareTechnologies
+Learning and exercise
