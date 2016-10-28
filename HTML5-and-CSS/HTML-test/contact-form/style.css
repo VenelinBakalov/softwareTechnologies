@@ -18,5 +18,11 @@ form input, form select {
 }
 
 form select {
-    margin: 1px;
+    margin: 5px;
+}
+
+form input[type='submit'] {
+    display: block;
+    margin: 10px 0 12px 98px;
+    width: 80px; height: 30px;
 }
