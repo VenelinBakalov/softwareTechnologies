@@ -19,6 +19,10 @@ form input, form select {
 
 form select {
     margin: 5px;
+
+    /*this was supposed to be 1px margin according to the task but in my opinion 5px looks closer
+    to the screenshot given as final result and also 5px is the form input margin. */
+
 }
 
 form input[type='submit'] {
