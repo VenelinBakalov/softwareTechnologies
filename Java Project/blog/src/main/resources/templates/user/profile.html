@@ -6,6 +6,23 @@
                     <span th:text="${user.email}"></span>
                     <br/>
                     <span th:text="${user.fullName}"></span>
+
+                    <header>
+                        <h2>
+                            <a th:href="@{/{id}/articles(id=${user.id})}"
+                               th:text="${'My articles (' + #sets.size(user.getArticles()) + ')'}">
+                            </a>
+                        </h2>
+                    </header>
+
+                    <header>
+                        <h2>
+                            <a th:href="#"
+                               th:text="${'My videos '">
+                            </a>
+                        </h2>
+                    </header>
+
                 </div>
             </div>
         </div>

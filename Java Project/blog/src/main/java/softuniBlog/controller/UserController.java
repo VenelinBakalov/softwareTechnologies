@@ -10,11 +10,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import softuniBlog.bindingModel.UserBindingModel;
+import softuniBlog.entity.Article;
 import softuniBlog.entity.Position;
 import softuniBlog.entity.Role;
 import softuniBlog.entity.User;
@@ -23,6 +21,7 @@ import softuniBlog.repository.RoleRepository;
 import softuniBlog.repository.UserRepository;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Set;
 
 @Controller
 public class UserController {
@@ -101,5 +100,22 @@ public class UserController {
 
         return "base-layout";
     }
+
+    @GetMapping("/{id}/articles")
+    public String listUserArticles(Model model, @PathVariable Integer id) {
+        if (!this.userRepository.exists(id)){
+            return "redirect:/profile";
+        }
+
+        User user = this.userRepository.findOne(id);
+        Set<Article> articles = user.getArticles();
+
+        model.addAttribute("articles", articles);
+        model.addAttribute("user", user);
+        model.addAttribute("view", "user/list-articles");
+
+        return "base-layout";
+    }
+
 }
 

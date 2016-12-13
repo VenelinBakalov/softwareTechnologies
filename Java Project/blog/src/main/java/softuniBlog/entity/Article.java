@@ -23,6 +23,17 @@ public class Article {
 
     private Date dateAdded;
 
+    private Set<Video> videos;
+
+    @OneToMany(mappedBy = "article")
+    public Set<Video> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(Set<Video> videos) {
+        this.videos = videos;
+    }
+
     public Date getDateAdded() {
         return dateAdded;
     }

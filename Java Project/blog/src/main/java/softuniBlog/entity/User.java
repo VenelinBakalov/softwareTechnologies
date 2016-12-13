@@ -21,6 +21,8 @@ public class User {
 
     private Set<Article> articles;
 
+    private Set<Video> videos;
+
     private Position position;
 
     public User(String email, String fullName, String password) {
@@ -98,6 +100,15 @@ public class User {
     @JoinColumn(name = "positionId")
     public Position getPosition() {
         return position;
+    }
+
+    @OneToMany(mappedBy = "cameraman")
+    public Set<Video> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(Set<Video> videos) {
+        this.videos = videos;
     }
 
     public void setPosition(Position position) {
