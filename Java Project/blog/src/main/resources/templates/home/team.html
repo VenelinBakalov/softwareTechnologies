@@ -1,0 +1,16 @@
+<main>
+    <div class="container body-content">
+        <h1>Meet our team</h1>
+        <div class="row">
+            <div class="col-md-12" th:each="position : ${positions}">
+
+                <h2 th:text="${position.getName() + ' (' + #sets.size(position.getUsers()) + ')'}">
+                </h2>
+
+                <div class="col-md-3" th:each="user : ${position.getUsers()}">
+                    <p th:text="${user.fullName}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
