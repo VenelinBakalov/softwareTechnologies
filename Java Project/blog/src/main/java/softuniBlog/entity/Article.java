@@ -107,6 +107,7 @@ public class Article {
         this.category = category;
         this.tags = tags;
         this.dateAdded = new Date();
+        this.videos = new HashSet<>();
     }
 
     public Article() {

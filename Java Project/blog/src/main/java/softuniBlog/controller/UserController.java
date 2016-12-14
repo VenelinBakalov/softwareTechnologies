@@ -107,8 +107,18 @@ public class UserController {
             return "redirect:/profile";
         }
 
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User loggedUser = this.userRepository.findByEmail(principal.getUsername());
+
         User user = this.userRepository.findOne(id);
-        Set<Article> articles = user.getArticles();
+
+        if (!loggedUser.equals(user)){
+            return "redirect:/login";
+        }
+        Set<Article> articles = loggedUser.getArticles();
 
         model.addAttribute("articles", articles);
         model.addAttribute("user", user);

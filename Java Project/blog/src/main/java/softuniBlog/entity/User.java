@@ -21,7 +21,9 @@ public class User {
 
     private Set<Article> articles;
 
-    private Set<Video> videos;
+    private Set<Video> authorVideos;
+
+    private Set<Video> cameramanVideos;
 
     private Position position;
 
@@ -32,6 +34,8 @@ public class User {
 
         this.roles = new HashSet<>();
         this.articles = new HashSet<>();
+        this.authorVideos = new HashSet<>();
+        this.cameramanVideos = new HashSet<>();
     }
 
     public User() {    }
@@ -102,13 +106,22 @@ public class User {
         return position;
     }
 
-    @OneToMany(mappedBy = "cameraman")
-    public Set<Video> getVideos() {
-        return videos;
+    @OneToMany(mappedBy = "author")
+    public Set<Video> getAuthorVideos() {
+        return authorVideos;
     }
 
-    public void setVideos(Set<Video> videos) {
-        this.videos = videos;
+    public void setAuthorVideos(Set<Video> authorVideos) {
+        this.authorVideos = authorVideos;
+    }
+
+    @OneToMany(mappedBy = "cameraman")
+    public Set<Video> getCameramanVideos() {
+        return cameramanVideos;
+    }
+
+    public void setCameramanVideos(Set<Video> videos) {
+        this.cameramanVideos = cameramanVideos;
     }
 
     public void setPosition(Position position) {

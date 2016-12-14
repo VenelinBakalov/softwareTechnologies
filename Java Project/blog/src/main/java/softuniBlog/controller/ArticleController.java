@@ -11,14 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import softuniBlog.bindingModel.ArticleBindingModel;
-import softuniBlog.entity.Article;
-import softuniBlog.entity.Category;
-import softuniBlog.entity.Tag;
-import softuniBlog.entity.User;
-import softuniBlog.repository.ArticleRepository;
-import softuniBlog.repository.CategoryRepository;
-import softuniBlog.repository.TagRepository;
-import softuniBlog.repository.UserRepository;
+import softuniBlog.entity.*;
+import softuniBlog.repository.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +32,9 @@ public class ArticleController {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private VideoRepository videoRepository;
 
     @GetMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
@@ -95,6 +92,11 @@ public class ArticleController {
 
         Article article = this.articleRepository.findOne(id);
 
+        List<Video> videos = (List<Video>) article.getVideos().stream()
+                .sorted((a, b) -> b.getDateAdded().compareTo(a.getDateAdded()))
+                .collect(Collectors.toList());
+
+        model.addAttribute("videos", videos);
         model.addAttribute("article", article);
         model.addAttribute("view", "article/details");
 

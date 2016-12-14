@@ -11,11 +11,13 @@ public class Video {
 
     private Integer id;
 
-    private String name;
+    private String title;
 
     private String url;
 
     private Article article;
+
+    private User author;
 
     private User cameraman;
 
@@ -24,9 +26,10 @@ public class Video {
     public Video() {
     }
 
-    public Video(String name, String url, User cameraman, Article article) {
-        this.name = name;
+    public Video(String title, String url, User author, User cameraman, Article article) {
+        this.title = title;
         this.url = url;
+        this.author = author;
         this.cameraman = cameraman;
         this.article = article;
         this.dateAdded = new Date();
@@ -43,12 +46,12 @@ public class Video {
     }
 
     @Column(nullable = false, unique = true)
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Column(nullable = false, unique = true)
@@ -59,14 +62,25 @@ public class Video {
     public void setUrl(String url) {
         this.url = url;
     }
+
     @ManyToOne()
-    @JoinColumn(nullable = false, name = "videoId")
+    @JoinColumn(nullable = false, name = "articleId")
     public Article getArticle() {
         return article;
     }
 
     public void setArticle(Article article) {
         this.article = article;
+    }
+
+    @ManyToOne()
+    @JoinColumn(nullable = false, name = "authorId")
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     @ManyToOne()
