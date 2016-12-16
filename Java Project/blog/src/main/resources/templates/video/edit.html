@@ -1,0 +1,51 @@
+<main>
+    <div class="container body-content span=8 offset=2">
+        <div class="well">
+            <form class="form-horizontal" th:action="@{/video/edit/{id}(id=${video.id})}" method="POST">
+                <fieldset>
+                    <legend>Edit Video</legend>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="video_title">Video Title</label>
+                        <div class="col-sm-4 ">
+                            <input type="text" class="form-control" id="video_title" placeholder="Video Title" name="title" th:value="${video.title}"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="video_url">Youtube URL</label>
+                        <div class="col-sm-4 ">
+                            <input type="text" class="form-control" id="video_url" placeholder="Youtube URL" name="fullUrl" th:value="@{https://www.youtube.com/watch?v={videoUrl}(videoUrl = ${video.url})}"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="video_article">Article</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" id="video_article" name="articleId">
+                                <option th:each="article : ${articles}" th:value="${article.id}" th:text="${article.title}"  th:selected="${article.id == video.article.id}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="video_cameraman">Cameraman</label>
+                        <div class="col-sm-6">
+                            <select class="form-control" id="video_cameraman" name="cameramanId">
+                                <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.fullName}"  th:selected="${user.id == video.cameraman.id}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-4">
+                            <a class="btn btn-default" th:href="@{/}">Cancel</a>
+                            <input type="submit" class="btn btn-success" value="Edit"/>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</main>

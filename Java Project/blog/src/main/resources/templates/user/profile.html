@@ -7,6 +7,20 @@
                     <br/>
                     <span th:text="${user.fullName}"></span>
 
+                    <img th:src="${user.imagePath}" class="img-responsive"/>
+
+                    <header>
+                        <h2>
+                            <a th:href="@{/{id}/edit-password(id=${user.id})}"> Edit Password</a>
+                        </h2>
+                    </header>
+
+                    <header>
+                        <h2>
+                            <a th:href="@{/{id}/profile-picture/upload/(id=${user.id})}"> Add/Change Profile Picture</a>
+                        </h2>
+                    </header>
+
                     <header>
                         <h2>
                             <a th:href="@{/{id}/articles(id=${user.id})}"
@@ -15,7 +29,13 @@
                         </h2>
                     </header>
 
-
+                    <header>
+                        <h2>
+                            <a th:href="@{/{id}/videos(id=${user.id})}"
+                               th:text="${'My videos (' + #sets.size(user.getAuthorVideos()) + ')'}">
+                            </a>
+                        </h2>
+                    </header>
 
                 </div>
             </div>

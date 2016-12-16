@@ -1,5 +1,7 @@
 package softuniBlog.entity;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
@@ -27,6 +29,10 @@ public class User {
 
     private Position position;
 
+    private String imagePath;
+
+    private Set<Comment> comments;
+
     public User(String email, String fullName, String password) {
         this.email = email;
         this.password = password;
@@ -36,6 +42,7 @@ public class User {
         this.articles = new HashSet<>();
         this.authorVideos = new HashSet<>();
         this.cameramanVideos = new HashSet<>();
+        this.comments = new HashSet<>();
     }
 
     public User() {    }
@@ -128,6 +135,24 @@ public class User {
         this.position = position;
     }
 
+    @Column(name = "imagePath")
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    @OneToMany(mappedBy = "author")
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
     @Transient
     public boolean isAdmin() {
         return this.getRoles()
@@ -138,5 +163,15 @@ public class User {
     @Transient
     public boolean isAuthor(Article article) {
         return Objects.equals(this.getId(), article.getAuthor().getId());
+    }
+
+    @Transient
+    public boolean isAuthor(Video video) {
+        return Objects.equals(this.getId(), video.getAuthor().getId());
+    }
+
+    @Transient
+    public boolean isAuthor(Comment comment) {
+        return Objects.equals(this.getId(), comment.getAuthor().getId());
     }
 }

@@ -2,35 +2,27 @@ package softuniBlog.entity;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
-@Table(name = "videos")
-public class Video {
+@Table(name = "comments")
+public class Comment {
 
     private Integer id;
 
-    private String title;
-
-    private String url;
-
-    private Article article;
+    private String content;
 
     private User author;
 
-    private User cameraman;
+    private Article article;
 
     private Date dateAdded;
 
-    public Video() {
+    public Comment() {
     }
 
-    public Video(String title, String url, User author, User cameraman, Article article) {
-        this.title = title;
-        this.url = url;
+    public Comment(String content, User author, Article article) {
+        this.content = content;
         this.author = author;
-        this.cameraman = cameraman;
         this.article = article;
         this.dateAdded = new Date();
     }
@@ -45,22 +37,13 @@ public class Video {
         this.id = id;
     }
 
-    @Column(nullable = false, unique = true)
-    public String getTitle() {
-        return title;
+    @Column(columnDefinition = "text", nullable = false)
+    public String getContent() {
+        return content;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    @Column(nullable = false, unique = true)
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @ManyToOne()
@@ -81,16 +64,6 @@ public class Video {
 
     public void setAuthor(User author) {
         this.author = author;
-    }
-
-    @ManyToOne()
-    @JoinColumn(name = "cameramanId")
-    public User getCameraman() {
-        return cameraman;
-    }
-
-    public void setCameraman(User cameraman) {
-        this.cameraman = cameraman;
     }
 
     public Date getDateAdded() {

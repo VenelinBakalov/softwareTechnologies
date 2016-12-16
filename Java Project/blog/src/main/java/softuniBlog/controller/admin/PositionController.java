@@ -85,7 +85,7 @@ public class PositionController {
 
         Position position = this.positionRepository.findOne(id);
 
-        if (position.getName().equals("Guest")){
+        if (position.getName().equals("Guest") || position.getName().equals("Cameraman")){
             return "redirect:/admin/positions/";
         }
 
@@ -118,7 +118,7 @@ public class PositionController {
 
         Position position = this.positionRepository.findOne(id);
 
-        if (position.getName().equals("Guest")){
+        if (position.getName().equals("Guest") || position.getName().equals("Cameraman")){
             return "redirect:/admin/positions/";
         }
 

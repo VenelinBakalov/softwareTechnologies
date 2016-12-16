@@ -11,7 +11,7 @@
 
                     <div class="date">
                         <i>Posted on</i>
-                        <span th:text="${#dates.format(article.dateAdded, 'dd-MM-yyyy')}"></span>
+                        <span th:text="${#dates.format(article.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
                     </div>
                     <small class="author"
                            th:text="${article.author.fullName} + ', ' + ${article.author.position.getName()}"></small>
@@ -40,11 +40,55 @@
 
             <div class="col-md-12">
                 <th:block th:each="video : ${videos}">
-                    <iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{videoUrl}(videoUrl = ${video.url})}" frameborder="0" allowfullscreen="true"></iframe>
-                </th:block>
+                    <h3 th:text="${video.title}"></h3>
+                    <iframe width="560" height="315"
+                            th:src="@{https://www.youtube.com/embed/{videoUrl}(videoUrl = ${video.url})}"
+                            frameborder="0" allowfullscreen="true"></iframe>
+                    <div class="date">
+                        <i>Added on</i>
+                        <span th:text="${#dates.format(video.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
+                    </div>
+                    <p th:text="'Cameraman: ' + ${video.cameraman.fullName}"></p>
 
+                </th:block>
             </div>
 
+            <form class="form-horizontal" th:action="@{/article/{id}/add-comment(id=${article.id})}"
+                  method="POST">
+                <fieldset>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="article_comment">Add Comment</label>
+                        <div class="col-sm-6">
+                            <textarea class="form-control" rows="3" id="article_comment" name="content"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-4">
+                            <input type="submit" class="btn btn-primary" value="Comment"/>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <div class="col-sm-12" th:each="comment : ${comments}">
+                <div class="well well-sm">
+                    <b class="author"
+                       th:text="${comment.author.fullName} + ', ' + ${comment.author.position.getName() + ' :'}"></b>
+                    <h3 th:text="${comment.content}"></h3>
+                    <div class="small">
+                        <i>Added: </i>
+                        <span th:text="${#dates.format(comment.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
+                    </div>
+                    <div class="pull-right" sec:authorize="isAuthenticated()"
+                              th:if="${user.isAdmin() OR user.isAuthor(comment)}">
+                        <a class="btn btn-success btn-xs" th:href="@{/comment/edit/{id}(id=${comment.id})}">Edit</a>
+                        <a class="btn btn-danger btn-xs" th:href="@{/comment/delete/{id}(id = ${comment.id})}">Delete</a>
+                    </div>
+                    <br/>
+                </div>
+            </div>
         </div>
     </div>
 </main>

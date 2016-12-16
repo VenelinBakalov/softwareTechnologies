@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import softuniBlog.bindingModel.ArticleBindingModel;
+import softuniBlog.bindingModel.CommentBindingModel;
 import softuniBlog.entity.*;
 import softuniBlog.repository.*;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -35,6 +38,9 @@ public class ArticleController {
 
     @Autowired
     private VideoRepository videoRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @GetMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
@@ -92,12 +98,17 @@ public class ArticleController {
 
         Article article = this.articleRepository.findOne(id);
 
-        List<Video> videos = (List<Video>) article.getVideos().stream()
+        List<Video> videos = article.getVideos().stream()
+                .sorted(Comparator.comparing(Video::getDateAdded))
+                .collect(Collectors.toList());
+
+        List<Comment> comments = article.getComments().stream()
                 .sorted((a, b) -> b.getDateAdded().compareTo(a.getDateAdded()))
                 .collect(Collectors.toList());
 
         model.addAttribute("videos", videos);
         model.addAttribute("article", article);
+        model.addAttribute("comments", comments);
         model.addAttribute("view", "article/details");
 
         return "base-layout";
@@ -221,4 +232,5 @@ public class ArticleController {
 
         return tags;
     }
+
 }

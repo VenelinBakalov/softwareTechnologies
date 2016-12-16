@@ -1,10 +1,7 @@
 package softuniBlog.entity;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.*;
 @Entity
 @Table(name = "articles")
 public class Article {
@@ -25,41 +22,21 @@ public class Article {
 
     private Set<Video> videos;
 
-    @OneToMany(mappedBy = "article")
-    public Set<Video> getVideos() {
-        return videos;
-    }
+    private Set<Comment> comments;
 
-    public void setVideos(Set<Video> videos) {
-        this.videos = videos;
-    }
 
-    public Date getDateAdded() {
-        return dateAdded;
-    }
-
-    public void setDateAdded(Date dateAdded) {
-        this.dateAdded = dateAdded;
-    }
-
-    @ManyToMany()
-    @JoinColumn(table = "articles_tags")
-    public Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
-
-    @ManyToOne()
-    @JoinColumn(nullable = false, name = "categoryId")
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
+    public Article(String title, String content, User author, Category category, HashSet<Tag> tags) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
         this.category = category;
+        this.tags = tags;
+        this.dateAdded = new Date();
+        this.videos = new HashSet<>();
+        this.comments = new HashSet<>();
+    }
+
+    public Article() {
     }
 
     @Id
@@ -100,21 +77,55 @@ public class Article {
         this.author = author;
     }
 
-    public Article(String title, String content, User author, Category category, HashSet<Tag> tags) {
-        this.title = title;
-        this.content = content;
-        this.author = author;
-        this.category = category;
-        this.tags = tags;
-        this.dateAdded = new Date();
-        this.videos = new HashSet<>();
+    @OneToMany(mappedBy = "article")
+    public Set<Video> getVideos() {
+        return videos;
     }
 
-    public Article() {
+    public void setVideos(Set<Video> videos) {
+        this.videos = videos;
+    }
+
+    public Date getDateAdded() {
+        return dateAdded;
+    }
+
+    public void setDateAdded(Date dateAdded) {
+        this.dateAdded = dateAdded;
+    }
+
+    @ManyToMany()
+    @JoinColumn(table = "articles_tags")
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    @ManyToOne()
+    @JoinColumn(nullable = false, name = "categoryId")
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    @OneToMany(mappedBy = "article")
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
     }
 
     @Transient
     public String getSummary() {
         return this.getContent().substring(0, this.getContent().length() / 2) + "...";
     }
+
 }

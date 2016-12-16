@@ -1,17 +1,21 @@
 package softuniBlog.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import softuniBlog.entity.Article;
-import softuniBlog.entity.Category;
-import softuniBlog.entity.Position;
+import softuniBlog.entity.*;
+import softuniBlog.repository.ArticleRepository;
 import softuniBlog.repository.CategoryRepository;
 import softuniBlog.repository.PositionRepository;
+import softuniBlog.repository.UserRepository;
 
+import javax.persistence.Transient;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,14 +27,37 @@ public class HomeController {
     private CategoryRepository categoryRepository;
     @Autowired
     private PositionRepository positionRepository;
+    @Autowired
+    private ArticleRepository articleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/")
     public String index(Model model) {
 
-        List<Category> categories = this.categoryRepository.findAll();
+        List<Article> articles = this.articleRepository.findAll();
+        List<Article> latestFiveArticles = findLatestFive(articles);
+        Article latestArticle = latestFiveArticles.get(0);
 
+        List<Comment> comments = latestArticle.getComments().stream()
+                .sorted((a, b) -> b.getDateAdded().compareTo(a.getDateAdded()))
+                .collect(Collectors.toList());
+
+        if (!(SecurityContextHolder.getContext().getAuthentication()
+                instanceof AnonymousAuthenticationToken)) {
+
+            UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+
+            User userEntity = this.userRepository.findByEmail(principal.getUsername());
+
+            model.addAttribute("user", userEntity);
+        }
+
+        model.addAttribute("latestFiveArticles", latestFiveArticles);
+        model.addAttribute("latestArticle", latestArticle);
+        model.addAttribute("comments", comments);
         model.addAttribute("view", "home/index");
-        model.addAttribute("categories", categories);
 
         return "base-layout";
     }
@@ -59,7 +86,7 @@ public class HomeController {
     }
 
     @GetMapping("/team")
-    public String listTeam(Model model){
+    public String listTeam(Model model) {
 
         List<Position> positions = this.positionRepository.findAll().stream()
                 .filter(position -> !position.getName().equals("Guest"))
@@ -70,5 +97,27 @@ public class HomeController {
         model.addAttribute("view", "home/team");
 
         return "base-layout";
+    }
+
+    @GetMapping("/news")
+    public String listAllCategories(Model model) {
+
+        List<Category> categories = this.categoryRepository.findAll();
+
+        model.addAttribute("view", "home/news");
+        model.addAttribute("categories", categories);
+
+        return "base-layout";
+    }
+
+    @Transient
+    private List<Article> findLatestFive(List<Article> articles) {
+
+        articles = articles.stream()
+                .sorted((a, b) -> b.getDateAdded().compareTo(a.getDateAdded()))
+                .limit(5)
+                .collect(Collectors.toList());
+
+        return articles;
     }
 }
