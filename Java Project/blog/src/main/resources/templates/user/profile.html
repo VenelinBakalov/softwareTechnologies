@@ -1,14 +1,28 @@
 <main>
+    <div class="alert alert-danger" th:if="${error}">
+        <strong th:text="${error}"></strong>
+    </div>
     <div class="container body-container">
         <div class="row">
             <div id="main" class="col-sm-9">
                 <div>
-                    <span th:text="${user.email}"></span>
-                    <br/>
-                    <span th:text="${user.fullName}"></span>
-
-                    <img th:src="${user.imagePath}" class="img-responsive"/>
-
+                    <header>
+                        <b>
+                            <h3><i>Email: </i>
+                                <th:block th:text="${user.email}"></th:block>
+                            </h3>
+                        </b>
+                    </header>
+                    <header>
+                        <b>
+                            <h3><i>Full Name: </i>
+                                <th:block th:text="${user.fullName}"></th:block>
+                            </h3>
+                        </b>
+                    </header>
+                    <th:block th:if="${user.imagePath}">
+                    <img th:src="@{http://localhost:8080/images/{imagePath}(imagePath=${user.imagePath})}"/>
+                    </th:block>
                     <header>
                         <h2>
                             <a th:href="@{/{id}/edit-password(id=${user.id})}"> Edit Password</a>

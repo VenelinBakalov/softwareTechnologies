@@ -8,7 +8,10 @@
                 </h2>
 
                 <div class="col-md-3" th:each="user : ${position.getUsers()}">
-                    <p th:text="${user.fullName}"></p>
+                    <h4 th:text="${user.fullName}"></h4>
+                    <th:block th:if="${user.imagePath}">
+                    <img th:src="@{http://localhost:8080/images/{imagePath}(imagePath=${user.imagePath})}"/>
+                    </th:block>
                 </div>
             </div>
         </div>

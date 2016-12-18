@@ -1,58 +1,46 @@
 <main>
+    <div class="alert alert-danger" th:if="${error}">
+        <strong th:text="${error}"></strong>
+    </div>
     <div class="container body-content">
 
-        <div class="pull-right">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Recent articles</h3>
+        <div class="col-md-9">
+            <article>
+                <header>
+                    <h2 th:text="${latestArticle.title}"></h2>
+                </header>
+
+                <p th:text="${latestArticle.content}"></p>
+
+                <div class="date">
+                    <i>Posted on</i>
+                    <span th:text="${#dates.format(latestArticle.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
                 </div>
-                <div class="panel-body" th:each="article : ${latestFiveArticles}">
-                    <a th:href="@{/article/{id}(id=${article.id})}" th:text="${article.title}"></a>
-                    <p>
-                        <small class="author"
-                               th:text="${'Posted on ' + #dates.format(article.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></small>
-                    </p>
-                </div>
-            </div>
-        </div>
+                <small class="author"
+                       th:text="${latestArticle.author.fullName} + ', ' + ${latestArticle.author.position.getName()}"></small>
 
-        <div class="row">
-            <div class="col-md-9">
-                <article>
-                    <header>
-                        <h2 th:text="${latestArticle.title}"></h2>
-                    </header>
+                <p>
+                    <a class="btn btn-default btn-xs" th:each="tag:${latestArticle.tags}"
+                       th:href="@{/tag/{name}(name=${tag.name})}" th:text="${tag.name}"></a>
+                </p>
+            </article>
 
-                    <p th:text="${latestArticle.content}"></p>
-
+            <div class="col-md-12">
+                <th:block th:each="video : ${latestArticle.videos}">
+                    <h3 th:text="${video.title}"></h3>
+                    <iframe width="560" height="315"
+                            th:src="@{https://www.youtube.com/embed/{videoUrl}(videoUrl = ${video.url})}"
+                            frameborder="0" allowfullscreen="true"></iframe>
                     <div class="date">
-                        <i>Posted on</i>
-                        <span th:text="${#dates.format(latestArticle.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
+                        <i>Added on</i>
+                        <span th:text="${#dates.format(video.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
                     </div>
-                    <small class="author"
-                           th:text="${latestArticle.author.fullName} + ', ' + ${latestArticle.author.position.getName()}"></small>
+                    <p th:text="'Cameraman: ' + ${video.cameraman.fullName}"></p>
 
-                    <p>
-                        <a class="btn btn-default btn-xs" th:each="tag:${latestArticle.tags}"
-                           th:href="@{/tag/{name}(name=${tag.name})}" th:text="${tag.name}"></a>
-                    </p>
-                </article>
+                </th:block>
+            </div>
 
-                <div class="col-md-12">
-                    <th:block th:each="video : ${latestArticle.videos}">
-                        <h3 th:text="${video.title}"></h3>
-                        <iframe width="560" height="315"
-                                th:src="@{https://www.youtube.com/embed/{videoUrl}(videoUrl = ${video.url})}"
-                                frameborder="0" allowfullscreen="true"></iframe>
-                        <div class="date">
-                            <i>Added on</i>
-                            <span th:text="${#dates.format(video.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
-                        </div>
-                        <p th:text="'Cameraman: ' + ${video.cameraman.fullName}"></p>
-
-                    </th:block>
-                </div>
-
+            <th:block sec:authorize="isAuthenticated()">
                 <form class="form-horizontal" th:action="@{/article/{id}/add-comment(id=${latestArticle.id})}"
                       method="POST">
                     <fieldset>
@@ -71,25 +59,70 @@
                         </div>
                     </fieldset>
                 </form>
+            </th:block>
 
-                <div class="col-sm-12" th:each="comment : ${comments}">
-                    <div class="well well-sm">
-                        <b class="author"
-                           th:text="${comment.author.fullName} + ', ' + ${comment.author.position.getName() + ' :'}"></b>
-                        <h3 th:text="${comment.content}"></h3>
-                        <div class="small">
-                            <i>Added: </i>
-                            <span th:text="${#dates.format(comment.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
-                        </div>
-                        <div class="pull-right" sec:authorize="isAuthenticated()"
-                             th:if="${user.isAdmin() OR user.isAuthor(comment)}">
-                            <a class="btn btn-success btn-xs" th:href="@{/comment/edit/{id}(id=${comment.id})}">Edit</a>
-                            <a class="btn btn-danger btn-xs" th:href="@{/comment/delete/{id}(id = ${comment.id})}">Delete</a>
-                        </div>
-                        <br/>
+            <div class="col-sm-12" th:each="comment : ${comments}">
+                <div class="well well-sm">
+                    <b class="author"
+                       th:text="${comment.author.fullName} + ', ' + ${comment.author.position.getName() + ' :'}"></b>
+                    <h3 th:text="${comment.content}"></h3>
+                    <div class="small">
+                        <i>Added: </i>
+                        <span th:text="${#dates.format(comment.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></span>
                     </div>
+                    <div class="pull-right" sec:authorize="isAuthenticated()"
+                         th:if="${user.isAdmin() OR user.isAuthor(comment)}">
+                        <a class="btn btn-success btn-xs" th:href="@{/comment/edit/{id}(id=${comment.id})}">Edit</a>
+                        <a class="btn btn-danger btn-xs"
+                           th:href="@{/comment/delete/{id}(id = ${comment.id})}">Delete</a>
+                    </div>
+                    <br/>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-3">
+
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">News Categories</h3>
+                </div>
+                <div class="panel-body">
+                    <a th:href="@{/news}">All categories</a>
+                </div>
+                <div class="panel-body" th:each="category : ${categories}">
+                    <a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name}"></a>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Recent articles</h3>
+                </div>
+                <div class="panel-body" th:each="article : ${latestFiveArticles}">
+                    <a th:href="@{/article/{id}(id=${article.id})}" th:text="${article.title}"></a>
+                    <p>
+                        <small class="author"
+                               th:text="${'Posted on ' + #dates.format(article.dateAdded, 'dd-MM-yyyy HH:mm:ss')}"></small>
+                    </p>
+                </div>
+            </div>
+
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Popular Tags</h3>
+                </div>
+                <div>
+                    <p></p>
+                    <p>
+                        <a class="btn btn-default btn-xs" th:each="tag:${tags}"
+                           th:href="@{/tag/{name}(name=${tag.name})}" th:text="${tag.name}"></a>
+                    </p>
+                </div>
+            </div>
+
+
+        </div>
+
     </div>
 </main>

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.UserEditBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Position;
@@ -47,8 +48,9 @@ public class AdminUserController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(Model model, @PathVariable Integer id) {
+    public String edit(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/admin/users/";
         }
 
@@ -65,8 +67,9 @@ public class AdminUserController {
     }
 
     @PostMapping("/edit/{id}")
-    public String editProcess(@PathVariable Integer id, UserEditBindingModel userBindingModel) {
+    public String editProcess(@PathVariable Integer id, UserEditBindingModel userBindingModel, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/admin/users/";
         }
 
@@ -79,6 +82,11 @@ public class AdminUserController {
                 BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
                 user.setPassword(bCryptPasswordEncoder.encode(userBindingModel.getPassword()));
+            }
+
+            else {
+                redirectAttributes.addFlashAttribute("error", "Passwords do not match!");
+                return "redirect:/admin/users/edit/" + id;
             }
         }
 
@@ -103,8 +111,9 @@ public class AdminUserController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id, Model model) {
+    public String delete(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/admin/users/";
         }
 
@@ -117,8 +126,9 @@ public class AdminUserController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteProcess(@PathVariable Integer id) {
+    public String deleteProcess(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/admin/users/";
         }
 

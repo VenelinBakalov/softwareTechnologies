@@ -1,0 +1,36 @@
+<main>
+    <div class="container body-content">
+        <div class="well">
+            <h2>All Videos -
+                <a th:href="@{/video/create}" class="btn btn-warning">Add New</a>
+            </h2>
+            <div class="row">
+                <table class="table table-striped table-hover ">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Article</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr th:each="video : ${videos}">
+                        <td th:text="${video.id}"></td>
+                        <td th:text="${video.title}"></td>
+                        <td>
+                            <a th:href="@{/article/{id}(id = ${video.article.id})}"
+                               th:text="${video.article.title}"></a>
+                        </td>
+                        <td>
+                            <a class="btn btn-success btn-xs" th:href="@{/video/edit/{id}(id = ${video.id})}">Edit</a>
+                            <a class="btn btn-danger btn-xs" th:href="@{/video/delete/{id}(id = ${video.id})}">Delete</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

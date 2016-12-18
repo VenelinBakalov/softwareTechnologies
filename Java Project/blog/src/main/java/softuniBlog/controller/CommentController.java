@@ -6,9 +6,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.CommentBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Comment;
@@ -31,9 +33,14 @@ public class CommentController {
 
     @PostMapping("/article/{id}/add-comment")
     @PreAuthorize("isAuthenticated()")
-    public String submitComment(@PathVariable Integer id, CommentBindingModel commentBindingModel) {
+    public String submitComment(@PathVariable Integer id, CommentBindingModel commentBindingModel, RedirectAttributes redirectAttributes) {
         if (!this.articleRepository.exists(id)) {
             return "redirect:/";
+        }
+
+        if (StringUtils.isEmpty(commentBindingModel.getContent())){
+            redirectAttributes.addFlashAttribute("error", "The comment cannot be empty!");
+            return "redirect:/article/" + id;
         }
 
         Article article = this.articleRepository.findOne(id);
@@ -56,14 +63,16 @@ public class CommentController {
 
     @GetMapping("/comment/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Integer id, Model model) {
+    public String edit(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         if (!this.commentRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such comment doesn't exist!");
             return "redirect:/";
         }
 
         Comment comment = this.commentRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(comment)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this comment!");
             return "redirect:/article/" + comment.getArticle().getId();
         }
 
@@ -75,14 +84,21 @@ public class CommentController {
 
     @PostMapping("/comment/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String editProcess(@PathVariable Integer id, CommentBindingModel commentBindingModel) {
+    public String editProcess(@PathVariable Integer id, CommentBindingModel commentBindingModel, RedirectAttributes redirectAttributes) {
         if (!this.commentRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such comment doesn't exist!");
             return "redirect:/";
         }
 
         Comment comment = this.commentRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(comment)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this comment!");
+            return "redirect:/article/" + comment.getArticle().getId();
+        }
+
+        if (StringUtils.isEmpty(commentBindingModel.getContent())){
+            redirectAttributes.addFlashAttribute("error", "The comment cannot be empty!");
             return "redirect:/article/" + comment.getArticle().getId();
         }
 
@@ -95,14 +111,16 @@ public class CommentController {
 
     @GetMapping("/comment/delete/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String delete(@PathVariable Integer id, Model model) {
+    public String delete(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         if (!this.commentRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such comment doesn't exist!");
             return "redirect:/";
         }
 
         Comment comment = this.commentRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(comment)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this comment!");
             return "redirect:/article/" + comment.getArticle().getId();
         }
 
@@ -114,14 +132,16 @@ public class CommentController {
 
     @PostMapping("/comment/delete/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String deleteProcess(@PathVariable Integer id) {
+    public String deleteProcess(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.commentRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such comment doesn't exist!");
             return "redirect:/";
         }
 
         Comment comment = this.commentRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(comment)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this comment!");
             return "redirect:/article/" + comment.getArticle().getId();
         }
 

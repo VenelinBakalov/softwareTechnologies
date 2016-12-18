@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.PositionBindingModel;
 import softuniBlog.entity.Position;
 import softuniBlog.entity.User;
@@ -51,8 +52,9 @@ public class PositionController {
     }
 
     @PostMapping("/create")
-    public String createProcess(PositionBindingModel positionBindingModel) {
+    public String createProcess(PositionBindingModel positionBindingModel, RedirectAttributes redirectAttributes) {
         if (StringUtils.isEmpty(positionBindingModel.getName())) {
+            redirectAttributes.addFlashAttribute("error", "The name of the position cannot be empty!");
             return "redirect:/admin/positions/create";
         }
 
@@ -64,8 +66,9 @@ public class PositionController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(Model model, @PathVariable Integer id) {
+    public String edit(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.positionRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such position doesn't exist!");
             return "redirect:/admin/positions/";
         }
 
@@ -78,15 +81,22 @@ public class PositionController {
     }
 
     @PostMapping("/edit/{id}")
-    public String editProcess(@PathVariable Integer id, PositionBindingModel positionBindingModel) {
+    public String editProcess(@PathVariable Integer id, PositionBindingModel positionBindingModel, RedirectAttributes redirectAttributes) {
         if (!this.positionRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such position doesn't exist!");
             return "redirect:/admin/positions/";
         }
 
         Position position = this.positionRepository.findOne(id);
 
         if (position.getName().equals("Guest") || position.getName().equals("Cameraman")){
+            redirectAttributes.addFlashAttribute("error", "Cannot edit this position!");
             return "redirect:/admin/positions/";
+        }
+
+        if (StringUtils.isEmpty(positionBindingModel.getName())) {
+            redirectAttributes.addFlashAttribute("error", "The name of the position cannot be empty!");
+            return "redirect:/admin/positions/edit/" + id;
         }
 
         position.setName(positionBindingModel.getName());
@@ -97,8 +107,9 @@ public class PositionController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id, Model model) {
+    public String delete(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
         if (!this.positionRepository.exists(id)){
+            redirectAttributes.addFlashAttribute("error", "Such position doesn't exist!");
             return "redirect:/admin/positions/";
         }
 
@@ -111,14 +122,16 @@ public class PositionController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteProcess(@PathVariable Integer id){
+    public String deleteProcess(@PathVariable Integer id, RedirectAttributes redirectAttributes){
         if (!this.positionRepository.exists(id)){
+            redirectAttributes.addFlashAttribute("error", "Such position doesn't exist!");
             return "redirect:/admin/positions/";
         }
 
         Position position = this.positionRepository.findOne(id);
 
         if (position.getName().equals("Guest") || position.getName().equals("Cameraman")){
+            redirectAttributes.addFlashAttribute("error", "Cannot delete this position!");
             return "redirect:/admin/positions/";
         }
 

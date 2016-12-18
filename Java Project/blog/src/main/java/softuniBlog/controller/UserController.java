@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.FileBindingModel;
 import softuniBlog.bindingModel.PasswordEditBindingModel;
 import softuniBlog.bindingModel.UserBindingModel;
@@ -47,9 +48,20 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String registerProcess(UserBindingModel userBindingModel) {
+    public String registerProcess(UserBindingModel userBindingModel, RedirectAttributes redirectAttributes) {
 
         if (!userBindingModel.getPassword().equals(userBindingModel.getConfirmPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Passwords do not match!");
+            return "redirect:/register";
+        }
+
+        if (StringUtils.isEmpty(userBindingModel.getEmail())){
+            redirectAttributes.addFlashAttribute("error", "Email cannot be empty!");
+            return "redirect:/register";
+        }
+
+        if (StringUtils.isEmpty(userBindingModel.getFullName())){
+            redirectAttributes.addFlashAttribute("error", "Full name cannot be empty!");
             return "redirect:/register";
         }
 
@@ -109,8 +121,9 @@ public class UserController {
 
     @GetMapping("/{id}/articles")
     @PreAuthorize("isAuthenticated()")
-    public String listUserArticles(Model model, @PathVariable Integer id) {
+    public String listUserArticles(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
@@ -123,6 +136,7 @@ public class UserController {
         User user = this.userRepository.findOne(id);
 
         if (!loggedUser.equals(user)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
             return "redirect:/login";
         }
 
@@ -138,8 +152,9 @@ public class UserController {
 
     @GetMapping("/{id}/videos")
     @PreAuthorize("isAuthenticated()")
-    public String listUserVideos(Model model, @PathVariable Integer id) {
+    public String listUserVideos(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
@@ -151,6 +166,7 @@ public class UserController {
         User user = this.userRepository.findOne(id);
 
         if (!loggedUser.equals(user)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
             return "redirect:/login";
         }
 
@@ -166,8 +182,9 @@ public class UserController {
 
     @GetMapping("/{id}/edit-password")
     @PreAuthorize("isAuthenticated()")
-    public String editPassword(Model model, @PathVariable Integer id) {
+    public String editPassword(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
@@ -179,6 +196,7 @@ public class UserController {
         User user = this.userRepository.findOne(id);
 
         if (!loggedUser.equals(user)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
             return "redirect:/login";
         }
 
@@ -190,8 +208,9 @@ public class UserController {
 
     @PostMapping("/{id}/edit-password")
     @PreAuthorize("isAuthenticated()")
-    public String editPasswordProcess(@PathVariable Integer id, PasswordEditBindingModel passwordEditBindingModel) {
+    public String editPasswordProcess(@PathVariable Integer id, PasswordEditBindingModel passwordEditBindingModel, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
@@ -203,6 +222,7 @@ public class UserController {
         User user = this.userRepository.findOne(id);
 
         if (!loggedUser.equals(user)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
             return "redirect:/login";
         }
 
@@ -216,6 +236,11 @@ public class UserController {
 
                 user.setPassword(bCryptPasswordEncoder.encode(passwordEditBindingModel.getPassword()));
             }
+
+            else {
+                redirectAttributes.addFlashAttribute("error", "Passwords do not match!");
+                return "redirect:/profile";
+            }
         }
 
         this.userRepository.saveAndFlush(user);
@@ -225,8 +250,9 @@ public class UserController {
 
     @GetMapping("/{id}/profile-picture/upload")
     @PreAuthorize("isAuthenticated()")
-    public String picture(Model model, @PathVariable Integer id) {
+    public String picture(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
@@ -238,6 +264,7 @@ public class UserController {
         User user = this.userRepository.findOne(id);
 
         if (!loggedUser.equals(user)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
             return "redirect:/login";
         }
 
@@ -249,8 +276,9 @@ public class UserController {
 
     @PostMapping("/{id}/profile-picture/upload")
     @PreAuthorize("isAuthenticated()")
-    public String uploadPicture(@PathVariable Integer id, FileBindingModel fileBindingModel) {
+    public String uploadPicture(@PathVariable Integer id, FileBindingModel fileBindingModel, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
@@ -262,6 +290,7 @@ public class UserController {
         User user = this.userRepository.findOne(id);
 
         if (!loggedUser.equals(user)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
             return "redirect:/login";
         }
 
@@ -276,7 +305,10 @@ public class UserController {
 
             try {
                 file.transferTo(imageFile);
-                user.setImagePath(imageFile.getPath());
+
+                Integer index = imageFile.getPath().lastIndexOf("\\");
+                String path = imageFile.getPath().substring(index + 1);
+                user.setImagePath(path);
 
                 this.userRepository.saveAndFlush(user);
 

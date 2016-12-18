@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.CategoryBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Category;
@@ -52,9 +53,10 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
-    public String createProcess(CategoryBindingModel categoryBindingModel) {
+    public String createProcess(CategoryBindingModel categoryBindingModel, RedirectAttributes redirectAttributes) {
 
         if(StringUtils.isEmpty(categoryBindingModel.getName())) {
+            redirectAttributes.addFlashAttribute("error", "The name of the category cannot be empty!");
             return "redirect:/admin/categories/create";
         }
 
@@ -66,9 +68,10 @@ public class CategoryController {
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(Model model, @PathVariable Integer id) {
+    public String edit(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
 
         if(!this.categoryRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such category doesn't exist!");
             return "redirect:/admin/categories/";
         }
 
@@ -82,9 +85,15 @@ public class CategoryController {
     }
 
     @PostMapping("/edit/{id}")
-    public String editProcess(CategoryBindingModel categoryBindingModel, @PathVariable Integer id) {
+    public String editProcess(CategoryBindingModel categoryBindingModel, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if(!this.categoryRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such category doesn't exist!");
             return "redirect:/admin/categories/";
+        }
+
+        if(StringUtils.isEmpty(categoryBindingModel.getName())) {
+            redirectAttributes.addFlashAttribute("error", "The name of the category cannot be empty!");
+            return "redirect:/admin/categories/edit/" + id;
         }
 
         Category category = this.categoryRepository.findOne(id);
@@ -97,8 +106,9 @@ public class CategoryController {
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(Model model, @PathVariable Integer id) {
+    public String delete(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.categoryRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such category doesn't exist!");
             return "redirect:/admin/categories/";
         }
 
@@ -111,8 +121,9 @@ public class CategoryController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteProcess(@PathVariable Integer id) {
+    public String deleteProcess(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.categoryRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such category doesn't exist!");
             return "redirect:/admin/categories/";
         }
 

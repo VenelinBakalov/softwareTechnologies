@@ -8,16 +8,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import softuniBlog.bindingModel.SearchBindingModel;
 import softuniBlog.entity.*;
-import softuniBlog.repository.ArticleRepository;
-import softuniBlog.repository.CategoryRepository;
-import softuniBlog.repository.PositionRepository;
-import softuniBlog.repository.UserRepository;
+import softuniBlog.repository.*;
 
 import javax.persistence.Transient;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -31,6 +33,8 @@ public class HomeController {
     private ArticleRepository articleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TagRepository tagRepository;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -54,6 +58,14 @@ public class HomeController {
             model.addAttribute("user", userEntity);
         }
 
+        List<Category> categories = this.categoryRepository.findAll();
+        List<Tag> tags = this.tagRepository.findAll().stream()
+                .sorted((a, b) -> Integer.valueOf(b.getArticles().size()).compareTo(a.getArticles().size()))
+                .limit(5)
+                .collect(Collectors.toList());
+
+        model.addAttribute("tags", tags);
+        model.addAttribute("categories", categories);
         model.addAttribute("latestFiveArticles", latestFiveArticles);
         model.addAttribute("latestArticle", latestArticle);
         model.addAttribute("comments", comments);
@@ -104,10 +116,108 @@ public class HomeController {
 
         List<Category> categories = this.categoryRepository.findAll();
 
-        model.addAttribute("view", "home/news");
         model.addAttribute("categories", categories);
+        model.addAttribute("view", "home/news");
 
         return "base-layout";
+    }
+
+    @GetMapping("/search")
+    public String search(Model model) {
+
+        List<String> searchTypes = new ArrayList<>();
+
+        searchTypes.add("Title");
+        searchTypes.add("Content");
+        searchTypes.add("Tags");
+        searchTypes.add("Author");
+
+        model.addAttribute("searchTypes", searchTypes);
+        model.addAttribute("view", "home/search");
+
+        return "base-layout";
+    }
+
+    @PostMapping("/search")
+    @GetMapping("/search-results")
+    public String searchProcess(SearchBindingModel searchBindingModel, Model model, RedirectAttributes redirectAttributes) {
+
+        if (searchBindingModel.getSearchTypes() == null){
+            redirectAttributes.addFlashAttribute("error", "At least 1 search type must be specified.");
+            return "redirect:/search";
+        }
+
+        String searchText = searchBindingModel.getSearchText();
+        List<String> searchTypes = searchBindingModel.getSearchTypes();
+
+        List<Article> articles = GetSearchResults(searchText, searchTypes);
+
+        model.addAttribute("articles", articles);
+        model.addAttribute("view", "home/search-results");
+
+        return "base-layout";
+    }
+
+    @Transient
+    private List<Article> GetSearchResults(String searchText, List<String> searchTypes) {
+
+        List<Article> articleResults = new ArrayList<>();
+        List<Article> articles = this.articleRepository.findAll();
+
+        for (String type : searchTypes) {
+
+            if (type.equals("Title")) {
+                for (Article article : articles) {
+
+                    Integer index = article.getTitle().indexOf(searchText);
+
+                    if (!index.equals(-1)){
+                        articleResults.add(article);
+                    }
+                }
+            }
+
+            if (type.equals("Content")) {
+                for (Article article : articles) {
+
+                    Integer index = article.getContent().indexOf(searchText);
+
+                    if (!index.equals(-1)){
+                        articleResults.add(article);
+                    }
+                }
+            }
+
+            if (type.equals("Tags")) {
+                List<Tag> tags = this.tagRepository.findAll();
+
+                for (Tag tag: tags) {
+
+                    if (tag.getName().equals(searchText)) {
+                        articleResults.addAll(tag.getArticles());
+                    }
+                }
+            }
+
+            if (type.equals("Author")) {
+                List<User> users = this.userRepository.findAll();
+
+                for (User user : users) {
+
+                    if (user.getFullName().equals(searchText)){
+                        articleResults.addAll(user.getArticles());
+                    }
+                }
+            }
+        }
+
+        Set<Article> distinctArticles = new HashSet<>();
+        distinctArticles.addAll(articleResults);
+
+        articleResults.clear();
+        articleResults.addAll(distinctArticles);
+
+        return articleResults;
     }
 
     @Transient

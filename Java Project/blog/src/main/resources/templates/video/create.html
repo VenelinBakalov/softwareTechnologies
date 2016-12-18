@@ -1,4 +1,7 @@
 <main>
+    <div class="alert alert-danger" th:if="${error}">
+        <strong th:text="${error}"></strong>
+    </div>
     <div class="container body-content span=8 offset=2">
         <div class="well">
             <form class="form-horizontal" th:action="@{/video/create}" method="POST">

@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.VideoBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.User;
@@ -53,9 +54,10 @@ public class VideoController {
 
     @PostMapping("/video/create")
     @PreAuthorize("isAuthenticated()")
-    public String createProcess(VideoBindingModel videoBindingModel) {
+    public String createProcess(VideoBindingModel videoBindingModel, RedirectAttributes redirectAttributes) {
 
         if (StringUtils.isEmpty(videoBindingModel.getTitle()) || StringUtils.isEmpty(videoBindingModel.getFullUrl())){
+            redirectAttributes.addFlashAttribute("error", "Title/Youtube URL fields cannot be empty!");
             return "redirect:/video/create";
         }
 
@@ -82,14 +84,16 @@ public class VideoController {
 
     @GetMapping("/video/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String Edit(Model model, @PathVariable Integer id) {
+    public String Edit(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.videoRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such video doesn't exist!");
             return "redirect:/";
         }
 
         Video video = this.videoRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(video)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this video!");
             return "redirect:/profile";
         }
 
@@ -109,15 +113,22 @@ public class VideoController {
 
     @PostMapping("/video/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String editProcess(VideoBindingModel videoBindingModel, @PathVariable Integer id) {
+    public String editProcess(VideoBindingModel videoBindingModel, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.videoRepository.exists(id)){
+            redirectAttributes.addFlashAttribute("error", "Such video doesn't exist!");
             return "redirect:/";
         }
 
         Video video = this.videoRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(video)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this video!");
             return "redirect:/profile";
+        }
+
+        if (StringUtils.isEmpty(videoBindingModel.getTitle()) || StringUtils.isEmpty(videoBindingModel.getFullUrl())){
+            redirectAttributes.addFlashAttribute("error", "Title/Youtube URL fields cannot be empty!");
+            return "redirect:/video/edit/" + id;
         }
 
         String url = getUrlForEmbeddedVideo(videoBindingModel.getFullUrl());
@@ -136,14 +147,16 @@ public class VideoController {
 
     @GetMapping("/video/delete/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String delete(Model model, @PathVariable Integer id) {
+    public String delete(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.videoRepository.exists(id)){
+            redirectAttributes.addFlashAttribute("error", "Such video doesn't exist!");
             return "redirect:/";
         }
 
         Video video = this.videoRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(video)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this video!");
             return "redirect:/profile";
         }
 
@@ -163,14 +176,16 @@ public class VideoController {
 
     @PostMapping("/video/delete/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String deleteProcess(@PathVariable Integer id){
+    public String deleteProcess(@PathVariable Integer id, RedirectAttributes redirectAttributes){
         if (!this.videoRepository.exists(id)){
+            redirectAttributes.addFlashAttribute("error", "Such video doesn't exist!");
             return "redirect:/";
         }
 
         Video video = this.videoRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(video)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this video!");
             return "redirect:/profile";
         }
 

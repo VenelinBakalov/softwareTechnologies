@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.entity.Tag;
 import softuniBlog.repository.TagRepository;
 
@@ -15,11 +16,12 @@ public class TagController {
     private TagRepository tagRepository;
 
     @GetMapping("/tag/{name}")
-    public String articlesWithTag(Model model, @PathVariable String name) {
+    public String articlesWithTag(Model model, @PathVariable String name, RedirectAttributes redirectAttributes) {
 
         Tag tag = this.tagRepository.findByName(name);
 
         if (tag == null) {
+            redirectAttributes.addFlashAttribute("error", "Such tag doesn't exist!");
             return "redirect:/";
         }
 

@@ -1,16 +1,26 @@
 <main>
-    <div class="container body-content">
-        <div class="row">
-        </div>
-        <div class="row">
-            <div class="col-md-6" th:each="article : ${latestArticle}">
-                <header>
-                    <h2>
-                        <a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}">
-                        </a>
-                    </h2>
-                </header>
+
+    <div class="col-md-12">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">All categories</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                </div>
+                <div class="row">
+                    <div class="col-md-3" th:each="category : ${categories}">
+                        <header>
+                            <h2>
+                                <a th:href="@{/category/{id}(id=${category.id})}"
+                                   th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}">
+                                </a>
+                            </h2>
+                        </header>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
 </main>

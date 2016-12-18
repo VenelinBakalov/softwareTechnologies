@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BlogUserDetails extends User implements UserDetails {
+
     private ArrayList<String> roles;
     private User user;
 

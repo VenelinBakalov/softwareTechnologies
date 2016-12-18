@@ -7,9 +7,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.ArticleBindingModel;
 import softuniBlog.bindingModel.CommentBindingModel;
 import softuniBlog.entity.*;
@@ -56,7 +58,17 @@ public class ArticleController {
 
     @PostMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
-    public String createProcess(ArticleBindingModel articleBindingModel) {
+    public String createProcess(ArticleBindingModel articleBindingModel, RedirectAttributes redirectAttributes) {
+
+        if (StringUtils.isEmpty(articleBindingModel.getTitle())){
+            redirectAttributes.addFlashAttribute("error", "Article title cannot be empty!");
+            return "redirect:/article/create/";
+        }
+
+        if (StringUtils.isEmpty(articleBindingModel.getContent())){
+            redirectAttributes.addFlashAttribute("error", "Article content cannot be empty!");
+            return "redirect:/article/create/";
+        }
 
         UserDetails user = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
@@ -79,9 +91,10 @@ public class ArticleController {
     }
 
     @GetMapping("/article/{id}")
-    public String details(Model model, @PathVariable Integer id) {
+    public String details(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
 
         if (!this.articleRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such article doesn't exist!");
             return "redirect:/";
         }
 
@@ -116,15 +129,17 @@ public class ArticleController {
 
     @GetMapping("/article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String edit(@PathVariable Integer id, Model model) {
+    public String edit(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
 
         if (!this.articleRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such article doesn't exist!");
             return "redirect:/";
         }
 
         Article article = this.articleRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(article)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this articles!");
             return "redirect:/article/" + id;
         }
 
@@ -144,15 +159,27 @@ public class ArticleController {
 
     @PostMapping("/article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel) {
+    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel, RedirectAttributes redirectAttributes) {
         if (!this.articleRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such article doesn't exist!");
             return "redirect:/";
         }
 
         Article article = this.articleRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(article)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this articles!");
             return "redirect:/article/" + id;
+        }
+
+        if (StringUtils.isEmpty(articleBindingModel.getTitle())){
+            redirectAttributes.addFlashAttribute("error", "Article title cannot be empty!");
+            return "redirect:/article/edit/" + id;
+        }
+
+        if (StringUtils.isEmpty(articleBindingModel.getContent())){
+            redirectAttributes.addFlashAttribute("error", "Article content cannot be empty!");
+            return "redirect:/article/edit/" + id;
         }
 
         Category category = this.categoryRepository.findOne(articleBindingModel.getCategoryId());
@@ -170,14 +197,16 @@ public class ArticleController {
 
     @GetMapping("/article/delete/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String delete(Model model, @PathVariable Integer id) {
+    public String delete(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.articleRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such article doesn't exist!");
             return "redirect:/";
         }
 
         Article article = this.articleRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(article)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this articles!");
             return "redirect:/article/" + id;
         }
 
@@ -189,14 +218,16 @@ public class ArticleController {
 
     @PostMapping("/article/delete/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String deleteProcess(@PathVariable Integer id){
+    public String deleteProcess(@PathVariable Integer id, RedirectAttributes redirectAttributes){
         if (!this.articleRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such article doesn't exist!");
             return "redirect:/";
         }
 
         Article article = this.articleRepository.findOne(id);
 
         if (!isUserAuthorOrAdmin(article)) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this articles!");
             return "redirect:/article/" + id;
         }
 
