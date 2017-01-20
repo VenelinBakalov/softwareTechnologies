@@ -33,6 +33,8 @@ public class User {
 
     private Set<Comment> comments;
 
+    private Set<Article> articlesLiked;
+
     public User(String email, String fullName, String password) {
         this.email = email;
         this.password = password;
@@ -43,6 +45,7 @@ public class User {
         this.authorVideos = new HashSet<>();
         this.cameramanVideos = new HashSet<>();
         this.comments = new HashSet<>();
+        this.articlesLiked = new HashSet<>();
     }
 
     public User() {    }
@@ -153,6 +156,15 @@ public class User {
         this.comments = comments;
     }
 
+    @ManyToMany(mappedBy = "usersLiked")
+    public Set<Article> getArticlesLiked() {
+        return articlesLiked;
+    }
+
+    public void setArticlesLiked(Set<Article> articlesLiked) {
+        this.articlesLiked = articlesLiked;
+    }
+
     @Transient
     public boolean isAdmin() {
         return this.getRoles()
@@ -173,5 +185,10 @@ public class User {
     @Transient
     public boolean isAuthor(Comment comment) {
         return Objects.equals(this.getId(), comment.getAuthor().getId());
+    }
+
+    @Transient
+    public boolean hasLiked(Article article) {
+        return this.getArticlesLiked().contains(article);
     }
 }

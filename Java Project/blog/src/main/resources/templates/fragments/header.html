@@ -33,11 +33,6 @@
                             News
                         </a>
                     </li>
-                    <li>
-                        <a th:href="@{/team}">
-                            Our team
-                        </a>
-                    </li>
                     <li sec:authorize="isAuthenticated()">
                         <a th:href="@{/profile}">
                             My Profile
@@ -46,6 +41,11 @@
                     <li>
                         <a th:href="@{/search}">
                             Search
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/team}">
+                            Our team
                         </a>
                     </li>
                     <li sec:authorize="isAuthenticated()">

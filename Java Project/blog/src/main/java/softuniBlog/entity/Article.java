@@ -24,6 +24,10 @@ public class Article {
 
     private Set<Comment> comments;
 
+    private Integer likes;
+
+    private Set<User> usersLiked;
+
 
     public Article(String title, String content, User author, Category category, HashSet<Tag> tags) {
         this.title = title;
@@ -34,6 +38,8 @@ public class Article {
         this.dateAdded = new Date();
         this.videos = new HashSet<>();
         this.comments = new HashSet<>();
+        this.likes = 0;
+        this.usersLiked = new HashSet<>();
     }
 
     public Article() {
@@ -121,6 +127,25 @@ public class Article {
 
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
+    }
+
+    public Integer getLikes() {
+        return likes;
+    }
+
+    @Column(nullable = false)
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+
+    @ManyToMany()
+    @JoinColumn(table = "articles_usersLiked")
+    public Set<User> getUsersLiked() {
+        return usersLiked;
+    }
+
+    public void setUsersLiked(Set<User> usersLiked) {
+        this.usersLiked = usersLiked;
     }
 
     @Transient

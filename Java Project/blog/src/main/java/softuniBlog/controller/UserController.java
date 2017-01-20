@@ -120,61 +120,63 @@ public class UserController {
     }
 
     @GetMapping("/{id}/articles")
-    @PreAuthorize("isAuthenticated()")
+ //   @PreAuthorize("isAuthenticated()")
     public String listUserArticles(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
             redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+ //       UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+  //              .getAuthentication()
+  //              .getPrincipal();
 
-        User loggedUser = this.userRepository.findByEmail(principal.getUsername());
+  //      User loggedUser = this.userRepository.findByEmail(principal.getUsername());
 
         User user = this.userRepository.findOne(id);
 
-        if (!loggedUser.equals(user)) {
-            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
-            return "redirect:/login";
-        }
+//    if (!loggedUser.equals(user)) {
+//        redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
+//        return "redirect:/login";
+//    }
 
-        List<Article> articles = (List<Article>) loggedUser.getArticles().stream()
+        List<Article> articles = (List<Article>) user.getArticles().stream()
                 .sorted(Comparator.comparingInt(Article::getId))
                 .collect(Collectors.toList());
 
         model.addAttribute("articles", articles);
+        model.addAttribute("user", user);
         model.addAttribute("view", "user/list-articles");
 
         return "base-layout";
     }
 
     @GetMapping("/{id}/videos")
-    @PreAuthorize("isAuthenticated()")
+ //   @PreAuthorize("isAuthenticated()")
     public String listUserVideos(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
         if (!this.userRepository.exists(id)) {
             redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
             return "redirect:/profile";
         }
 
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
+ //   UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+ //           .getAuthentication().getPrincipal();
 
-        User loggedUser = this.userRepository.findByEmail(principal.getUsername());
+ //   User loggedUser = this.userRepository.findByEmail(principal.getUsername());
 
         User user = this.userRepository.findOne(id);
 
-        if (!loggedUser.equals(user)) {
-            redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
-            return "redirect:/login";
-        }
+ //    if (!loggedUser.equals(user)) {
+ //        redirectAttributes.addFlashAttribute("error", "You are not authenticated!");
+ //        return "redirect:/login";
+ //    }
 
-        List<Video> videos = (List<Video>) loggedUser.getAuthorVideos().stream()
+        List<Video> videos = (List<Video>) user.getAuthorVideos().stream()
                 .sorted(Comparator.comparingInt(Video::getId))
                 .collect(Collectors.toList());
 
         model.addAttribute("videos", videos);
+        model.addAttribute("user", user);
         model.addAttribute("view", "user/list-videos");
 
         return "base-layout";
@@ -296,19 +298,21 @@ public class UserController {
 
         MultipartFile file = fileBindingModel.getPicture();
 
+        String root = System.getProperty("user.dir");
+
         if (file != null) {
 
-            String originalFileName = file.getOriginalFilename();
+            String originalFileName = user.getFullName() + file.getOriginalFilename();
 
             File imageFile = new File
-                    ("D:\\javaBroadcast\\newsWebsiteProject\\blog\\src\\main\\resources\\static\\images\\", originalFileName);
+                    ( root + "\\src\\main\\resources\\static\\images\\", originalFileName);
 
             try {
                 file.transferTo(imageFile);
 
-                Integer index = imageFile.getPath().lastIndexOf("\\");
-                String path = imageFile.getPath().substring(index + 1);
-                user.setImagePath(path);
+        //        Integer index = imageFile.getPath().lastIndexOf("\\");
+        //        String path = imageFile.getPath().substring(index + 1);
+                user.setImagePath(originalFileName);
 
                 this.userRepository.saveAndFlush(user);
 

@@ -56,6 +56,24 @@
                 </th:block>
             </div>
 
+            <div class="well well-sm pull-left">
+                <p th:text="'Likes: ' + ${article.likes}"></p>
+            </div>
+
+            <th:block sec:authorize="isAuthenticated()"
+                      th:if="not ${user.hasLiked(article)}">
+                <form class="form-horizontal" th:action="@{/article/{id}/like(id=${article.id})}"
+                      method="POST">
+                    <fieldset>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-4">
+                                <input type="submit" class="btn btn-primary" value="Like"/>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </th:block>
+
             <th:block sec:authorize="isAuthenticated()">
                 <form class="form-horizontal" th:action="@{/article/{id}/add-comment(id=${article.id})}"
                       method="POST">

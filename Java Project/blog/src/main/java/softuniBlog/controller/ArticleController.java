@@ -236,6 +236,36 @@ public class ArticleController {
         return "redirect:/";
     }
 
+    @PostMapping("/article/{id}/like")
+    @PreAuthorize("isAuthenticated()")
+    public String likeProcess(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        if (!this.articleRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such article doesn't exist!");
+            return "redirect:/";
+        }
+
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        Article article = this.articleRepository.findOne(id);
+
+        if (user.getArticlesLiked().contains(article)) {
+            redirectAttributes.addFlashAttribute("error", "You have already liked this article!");
+            return "redirect:/article/" + id;
+        }
+
+        article.setLikes(article.getLikes() + 1);
+        Set<User> usersLiked = article.getUsersLiked();
+        usersLiked.add(user);
+        article.setUsersLiked(usersLiked);
+
+        this.articleRepository.saveAndFlush(article);
+
+        return "redirect:/article/" + id;
+    }
+
     private boolean isUserAuthorOrAdmin(Article article) {
         UserDetails user = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();

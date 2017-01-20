@@ -158,6 +158,21 @@ public class HomeController {
         return "base-layout";
     }
 
+    @GetMapping("/profile/{id}")
+    public String profileView(Model model, @PathVariable Integer id, RedirectAttributes redirectAttributes){
+        if (!this.userRepository.exists(id)) {
+            redirectAttributes.addFlashAttribute("error", "Such user doesn't exist!");
+            return "redirect:/";
+        }
+
+        User user = this.userRepository.findOne(id);
+
+        model.addAttribute("user", user);
+        model.addAttribute("view", "user/user-details");
+
+        return "base-layout";
+    }
+
     @Transient
     private List<Article> GetSearchResults(String searchText, List<String> searchTypes) {
 
@@ -169,7 +184,7 @@ public class HomeController {
             if (type.equals("Title")) {
                 for (Article article : articles) {
 
-                    Integer index = article.getTitle().indexOf(searchText);
+                    Integer index = article.getTitle().toLowerCase().indexOf(searchText.toLowerCase());
 
                     if (!index.equals(-1)){
                         articleResults.add(article);
@@ -180,7 +195,7 @@ public class HomeController {
             if (type.equals("Content")) {
                 for (Article article : articles) {
 
-                    Integer index = article.getContent().indexOf(searchText);
+                    Integer index = article.getContent().toLowerCase().indexOf(searchText.toLowerCase());
 
                     if (!index.equals(-1)){
                         articleResults.add(article);
@@ -193,7 +208,7 @@ public class HomeController {
 
                 for (Tag tag: tags) {
 
-                    if (tag.getName().equals(searchText)) {
+                    if (tag.getName().toLowerCase().equals(searchText.toLowerCase())) {
                         articleResults.addAll(tag.getArticles());
                     }
                 }
@@ -204,7 +219,7 @@ public class HomeController {
 
                 for (User user : users) {
 
-                    if (user.getFullName().equals(searchText)){
+                    if (user.getFullName().toLowerCase().equals(searchText.toLowerCase())){
                         articleResults.addAll(user.getArticles());
                     }
                 }

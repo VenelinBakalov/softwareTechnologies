@@ -21,7 +21,7 @@
                         </b>
                     </header>
                     <th:block th:if="${user.imagePath}">
-                    <img th:src="@{http://localhost:8080/images/{imagePath}(imagePath=${user.imagePath})}"/>
+                    <img th:src="@{http://localhost:8080/images/{imagePath}(imagePath=${user.imagePath})}" height="400" width="400"/>
                     </th:block>
                     <header>
                         <h2>

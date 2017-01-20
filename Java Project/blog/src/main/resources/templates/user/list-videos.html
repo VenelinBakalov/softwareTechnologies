@@ -24,8 +24,11 @@
                             th:text="${video.article.title}"></a>
                         </td>
                         <td>
+                            <th:block sec:authorize="isAuthenticated()"
+                                      th:if="${user.isAdmin() OR user.isAuthor(article)}">
                             <a th:href="@{/video/edit/{id}(id = ${video.id})}">Edit</a>
                             <a th:href="@{/video/delete/{id}(id = ${video.id})}">Delete</a>
+                            </th:block>
                         </td>
                     </tr>
                     </tbody>
